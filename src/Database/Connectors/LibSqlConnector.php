@@ -15,7 +15,7 @@ class LibSqlConnector extends SQLiteConnector
             throw new \InvalidArgumentException('Organization and domain must be set in the database configuration.');
         }
 
-        $url =  $config['organization'] . '.' . $config['domain'];
+        $url = $config['organization'].'.'.$config['domain'];
 
         return new LibSqlPdo($url);
     }

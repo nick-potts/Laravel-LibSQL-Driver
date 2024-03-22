@@ -9,10 +9,15 @@ use PDO;
 class LibSqlPdoStatement extends \PDOStatement
 {
     public string $queryString;
+
     public string $internalQueryString;
+
     private int $rowCount;
+
     private array $results;
+
     public Grammar $grammar;
+
     public function __construct(string $queryString)
     {
         $this->queryString = $queryString;
@@ -23,6 +28,7 @@ class LibSqlPdoStatement extends \PDOStatement
     {
         $this->rowCount = 0;
         $this->results = [];
+
         return true;
     }
 
@@ -55,5 +61,4 @@ class LibSqlPdoStatement extends \PDOStatement
     {
         $this->internalQueryString = $this->grammar->substituteBindingsIntoRawSql($this->queryString, $bindings);
     }
-
 }

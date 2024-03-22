@@ -14,7 +14,7 @@ class LibSqlConnection extends SQLiteConnection
     public function bindValues($statement, $bindings): void
     {
         if ($statement instanceof \Squark\LibSqlDriver\Database\Pdo\LibSqlPdoStatement) {
-           $statement->bindValues($bindings);
+            $statement->bindValues($bindings);
         } else {
             throw new \RuntimeException('Unexpected PDOStatement type');
         }

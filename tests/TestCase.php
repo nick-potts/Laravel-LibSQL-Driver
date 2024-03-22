@@ -2,7 +2,6 @@
 
 namespace Squark\LibSqlDriver\Tests;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 use Squark\LibSqlDriver\LibSqlServiceProvider;
 
