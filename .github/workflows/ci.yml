@@ -57,6 +57,8 @@ jobs:
           composer update --${{ matrix.prefer }} --prefer-dist --no-interaction --no-suggest
 
       - name: Run worker server
+        env:
+          TURSO_INSTALL_SKIP_SIGNUP: 1
         run: |
           curl -sSfL https://get.tur.so/install.sh | bash
           turso dev --port 8081
