@@ -25,11 +25,12 @@ class LibSqlHttpConnector extends LibSqlConnector
         string      $sql,
         string|null $baton,
         string|null $baseUrl,
+        bool        $inTransaction = false,
     ): Response
     {
         $this->apiUrl = $baseUrl ?? $this->apiUrl;
 
-        $request = new LibSqlQueryRequest($this, $sql, $baton);
+        $request = new LibSqlQueryRequest($this, $sql, $baton, !$inTransaction);
 
         return $this->send(
             $request,

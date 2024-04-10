@@ -34,6 +34,7 @@ class LibSqlPdoStatement extends PDOStatement
     public function bindValue($param, $value, $type = PDO::PARAM_STR): bool
     {
         $this->bindings[$param] = match ($type) {
+            PDO::PARAM_LOB => base64_encode($value),
             PDO::PARAM_STR => (string)$value,
             PDO::PARAM_BOOL => (bool)$value,
             PDO::PARAM_INT => (int)$value,
@@ -49,14 +50,24 @@ class LibSqlPdoStatement extends PDOStatement
         $bindings = $this->bindings ?: $params;
         $query = $this->pdo->grammar()->substituteBindingsIntoRawSql($this->query, $bindings);
 
+        echo $this->pdo->inTransaction() ? 'in transaction' : 'not in transaction' . PHP_EOL;
+        echo $query . PHP_EOL;
         try {
             $response = $this->pdo->libsql()->databaseQuery(
                 $query,
                 $this->pdo->getBaton(),
                 $this->pdo->getBaseUrl(),
+                $this->pdo->inTransaction(),
             );
+            if (!$response->ok()) {
+                $body = $response->body();
+                throw new Exception(
+                    $body,
+                );
+            }
+
             /** @var ResponseDto $responseData */
-            $responseData = $response->dtoOrFail();
+            $responseData = $response->dto();
         } catch (Exception $e) {
             throw new PDOException(
                 $e->getMessage(),
@@ -79,7 +90,6 @@ class LibSqlPdoStatement extends PDOStatement
         return true;
     }
 
-
     public function fetchAll(int $mode = PDO::FETCH_DEFAULT, ...$args): array
     {
         return match ($this->fetchMode) {
@@ -98,7 +108,18 @@ class LibSqlPdoStatement extends PDOStatement
             foreach ($this->response->rows as $row) {
                 $mappedRow = [];
                 foreach ($this->response->cols as $index => $col) {
-                    $mappedRow[$col->name] = $row[$index]['value'] ?? null;
+                    $value = $row[$index]['value'] ?? null;
+                    $type = $row[$index]['type'] ?? null;
+                    $value = match ($type) {
+                        'null' => null,
+                        'integer' => (int)$value,
+                        'float' => (float)$value, // laravel doesn't do floats
+                        'text' => (string)$value,
+                        'blob' => base64_decode($value), // laravel doesn't do blobs
+                        default => $value,
+                    };
+
+                    $mappedRow[$col->name] = $value;
                 }
                 $rows[] = $mappedRow;
             }

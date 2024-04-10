@@ -21,6 +21,7 @@ class LibSqlQueryRequest extends LibSqlRequest implements HasBody
         $connector,
         protected string $sql,
         protected string|null $baton = null,
+        protected bool $shouldClose = true,
     )
     {
         parent::__construct($connector);
@@ -37,11 +38,6 @@ class LibSqlQueryRequest extends LibSqlRequest implements HasBody
      */
     public function createDtoFromResponse(Response $response): mixed
     {
-        if (!$response->ok() || $response->header('content-type') !== 'application/json') {
-            $body = $response->body();
-            throw new Exception($body);
-        }
-
         $json = $response->json();
         return new ResponseDto($json);
     }
@@ -57,9 +53,15 @@ class LibSqlQueryRequest extends LibSqlRequest implements HasBody
                     'stmt' => [
                         'sql' => $this->sql,
                     ]
-                ]
+                ],
             ]
         ];
+        if ($this->shouldClose) {
+            $body['requests'][] = [
+                'type' => 'close'
+            ];
+        }
+
         return $body;
     }
 }

@@ -3,11 +3,9 @@
 namespace NickPotts\LibSql\LibSql\Pdo;
 
 use Illuminate\Database\Query\Grammars\MySqlGrammar;
-use Illuminate\Database\Query\Grammars\SQLiteGrammar;
-use NickPotts\LibSql\LibSql\LibSqlSchemaGrammar;
+use NickPotts\LibSql\LibSqlHttpConnector;
 use PDO;
 use PDOStatement;
-use NickPotts\LibSql\LibSqlHttpConnector;
 
 class LibSqlPdo extends PDO
 {
@@ -20,18 +18,10 @@ class LibSqlPdo extends PDO
     public function __construct(
         protected string              $dsn,
         protected LibSqlHttpConnector $connector,
-        protected MySqlGrammar $grammar,
-    ) {
-        parent::__construct('sqlite::memory:');
-    }
-
-    public function prepare($query, $options = []): PDOStatement|false
+        protected MySqlGrammar        $grammar,
+    )
     {
-        return new LibSqlPdoStatement(
-            $this,
-            $query,
-            $options,
-        );
+        parent::__construct('sqlite::memory:');
     }
 
     public function grammar(): MySqlGrammar
@@ -64,16 +54,25 @@ class LibSqlPdo extends PDO
 
     public function beginTransaction(): bool
     {
+        $this->inTransaction = true;
         $statement = $this->prepare('BEGIN');
-        $statement->execute();
-        return $this->inTransaction = true;
+        return $statement->execute();
+    }
+
+    public function prepare($query, $options = []): PDOStatement|false
+    {
+        return new LibSqlPdoStatement(
+            $this,
+            $query,
+            $options,
+        );
     }
 
     public function commit(): bool
     {
+        $this->inTransaction = false;
         $statement = $this->prepare('COMMIT');
-        $statement->execute();
-        return ! ($this->inTransaction = false);
+        return $statement->execute();
     }
 
     public function inTransaction(): bool
@@ -84,18 +83,9 @@ class LibSqlPdo extends PDO
     public function rollBack(): bool
     {
         $statement = $this->prepare('ROLLBACK');
-        $statement->execute();
-        return ! ($this->inTransaction = false);
-    }
-
-    public function setBaseUrl(mixed $baseUrl): void
-    {
-        $this->baseUrl = $baseUrl;
-    }
-
-    public function setBaton(mixed $baton): void
-    {
-        $this->baton = $baton;
+        $value = $statement->execute();
+        $this->inTransaction = false;
+        return $value;
     }
 
     public function getBaton(): ?string
@@ -103,8 +93,18 @@ class LibSqlPdo extends PDO
         return $this->baton;
     }
 
+    public function setBaton(mixed $baton): void
+    {
+        $this->baton = $baton;
+    }
+
     public function getBaseUrl(): ?string
     {
         return $this->baseUrl;
+    }
+
+    public function setBaseUrl(mixed $baseUrl): void
+    {
+        $this->baseUrl = $baseUrl;
     }
 }

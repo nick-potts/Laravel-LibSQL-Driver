@@ -13,9 +13,4 @@ abstract class LibSqlRequest extends Request
     {
         $this->connector = $connector;
     }
-
-    protected function resolveConnector(): Connector
-    {
-        return $this->connector;
-    }
 }
