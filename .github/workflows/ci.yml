@@ -58,11 +58,12 @@ jobs:
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
 
-      - name: Install turso
-        env:
-          TURSO_INSTALL_SKIP_SIGNUP: 1
-        run: |
-          curl -sSfL https://get.tur.so/install.sh | bash
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@master
+
+      - name: Brew install tap
+        run: brew install tursodatabase/tap/turso
 
       - name: Run worker server
         run: |
