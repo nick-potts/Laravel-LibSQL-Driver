@@ -3,11 +3,12 @@
 namespace NickPotts\LibSql\LibSql\Requests;
 
 use Exception;
+use JsonException;
 use NickPotts\LibSql\LibSql\Requests\Dto\ResponseDto;
 use NickPotts\LibSql\LibSqlRequest;
 use Saloon\Contracts\Body\HasBody;
-use Saloon\Contracts\Response;
 use Saloon\Enums\Method;
+use Saloon\Http\Response;
 use Saloon\Traits\Body\HasJsonBody;
 
 class LibSqlQueryRequest extends LibSqlRequest implements HasBody
@@ -31,11 +32,10 @@ class LibSqlQueryRequest extends LibSqlRequest implements HasBody
     }
 
     /**
-     * @param Response $response
-     * @return ResponseDto
+     * @throws JsonException
      * @throws Exception
      */
-    public function createDtoFromResponse(Response $response): ResponseDto
+    public function createDtoFromResponse(Response $response): mixed
     {
         if (!$response->ok() || $response->header('content-type') !== 'application/json') {
             $body = $response->body();
@@ -45,6 +45,7 @@ class LibSqlQueryRequest extends LibSqlRequest implements HasBody
         $json = $response->json();
         return new ResponseDto($json);
     }
+
 
     protected function defaultBody(): array
     {

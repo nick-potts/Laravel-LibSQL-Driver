@@ -3,10 +3,9 @@
 namespace NickPotts\LibSql;
 
 use NickPotts\LibSql\LibSql\Requests\LibSqlQueryRequest;
-use ReflectionException;
-use Saloon\Contracts\Response;
-use Saloon\Exceptions\InvalidResponseClassException;
-use Saloon\Exceptions\PendingRequestException;
+use Saloon\Exceptions\Request\FatalRequestException;
+use Saloon\Exceptions\Request\RequestException;
+use Saloon\Http\Response;
 
 class LibSqlHttpConnector extends LibSqlConnector
 {
@@ -19,9 +18,8 @@ class LibSqlHttpConnector extends LibSqlConnector
     }
 
     /**
-     * @throws ReflectionException
-     * @throws InvalidResponseClassException
-     * @throws PendingRequestException
+     * @throws FatalRequestException
+     * @throws RequestException
      */
     public function databaseQuery(
         string      $sql,
