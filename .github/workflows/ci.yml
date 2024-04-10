@@ -62,6 +62,7 @@ jobs:
           TURSO_INSTALL_SKIP_SIGNUP: 1
         run: |
           curl -sSfL https://get.tur.so/install.sh | bash
+          source /home/runner/.bashrc
           turso dev --port 8081
           sleep 5
 
