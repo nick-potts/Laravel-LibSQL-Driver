@@ -1,11 +1,7 @@
-.idea
-.phpunit.cache
-build
+/vendor
+composer.phar
 composer.lock
-coverage
-docs
-phpunit.xml
-phpstan.neon
-testbench.yaml
-vendor
-node_modules
+.DS_Store
+database.sqlite
+/.phpunit.result.cache
+.idea/
