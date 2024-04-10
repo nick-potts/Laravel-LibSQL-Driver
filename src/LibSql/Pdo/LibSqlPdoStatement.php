@@ -50,8 +50,8 @@ class LibSqlPdoStatement extends PDOStatement
         $bindings = $this->bindings ?: $params;
         $query = $this->pdo->grammar()->substituteBindingsIntoRawSql($this->query, $bindings);
 
-        echo $this->pdo->inTransaction() ? 'in transaction' : 'not in transaction' . PHP_EOL;
-        echo $query . PHP_EOL;
+//        echo $this->pdo->inTransaction() ? 'in transaction' : 'not in transaction' . PHP_EOL;
+//        echo $query . PHP_EOL;
         try {
             $response = $this->pdo->libsql()->databaseQuery(
                 $query,
