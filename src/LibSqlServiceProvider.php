@@ -1,35 +1,52 @@
 <?php
 
-namespace Squark\LibSqlDriver;
+namespace NickPotts\LibSql;
 
-use Spatie\LaravelPackageTools\Package;
-use Spatie\LaravelPackageTools\PackageServiceProvider;
-use Squark\LibSqlDriver\Database\Connectors\LibSqlConnection;
-use Squark\LibSqlDriver\Database\Connectors\LibSqlConnector;
+use Illuminate\Support\ServiceProvider;
+use NickPotts\LibSql\LibSql\LibSqlConnection;
 
-class LibSqlServiceProvider extends PackageServiceProvider
+class LibSqlServiceProvider extends ServiceProvider
 {
-    public function register(): void
+    /**
+     * Boot the service provider.
+     *
+     * @return void
+     */
+    public function boot()
     {
-        LibSqlConnection::resolverFor('libsql', function ($connection, $database, $prefix, $config) {
-            return new LibSqlConnection($connection, $database, $prefix, $config);
+        //
+    }
+
+    /**
+     * Register the service provider.
+     *
+     * @return void
+     */
+    public function register()
+    {
+        $this->registerLibSql();
+    }
+
+    /**
+     * Register the LibSql service.
+     *
+     * @return void
+     */
+    protected function registerLibSql()
+    {
+        $this->app->resolving('db', function ($db) {
+            $db->extend('libsql', function ($config, $name) {
+                $config['name'] = $name;
+
+                $connection = new LibSqlConnection(
+                    new LibSqlHttpConnector(
+                        $config['token'] ?? null,
+                        $config['api'] ?? 'http://127.0.0.1:8080',
+                    ),
+                    $config,
+                );
+                return $connection;
+            });
         });
-    }
-
-    public function boot(): void
-    {
-        $this->app->bind('db.connector.libsql', LibSqlConnector::class);
-    }
-
-    public function configurePackage(Package $package): void
-    {
-        /*
-         * This class is a Package Service Provider
-         *
-         * More info: https://github.com/spatie/laravel-package-tools
-         */
-        $package
-            ->name('libsql-driver')
-            ->hasConfigFile();
     }
 }

@@ -1,55 +1,94 @@
-# LibSQL Driver for Laravel
+# Laravel LibSql Driver (Turso for Laravel)
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/nick-potts/libsql-driver.svg?style=flat-square)](https://packagist.org/packages/nick-potts/libsql-driver)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/nick-potts/libsql-driver/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/nick-potts/libsql-driver/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/nick-potts/libsql-driver/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/nick-potts/libsql-driver/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/nick-potts/libsql-driver.svg?style=flat-square)](https://packagist.org/packages/nick-potts/libsql-driver)
+Extend your PHP/Laravel application with LibSql (Turso) bindings.
 
-**This package is WIP and is not ready for use.**
+## !! WARNING !!
 
-## Installation
+**This package is a work in progress and is not yet ready for production use.**
 
-You can install the package via composer:
+**PLEASE DO NOT USE THIS PACKAGE YET.**
+
+## ✨Features
+
+This package offers support for:
+
+- [x] LibSql
+- [x] Turso
+
+## 🚀 Installation
+
+You can install the package via Composer:
 
 ```bash
-composer require nick-potts/libsql-driver
+composer require nick-potts/laravel-libsql-driver
 ```
 
-You can publish the config file with:
+## 🙌 Usage
 
-```bash
-php artisan vendor:publish --tag="libsql-driver-config"
-```
+### LibSql with raw PDO
 
-## Usage
-
-TODO: Write usage instructions
-
-but tldr, you need to create a config in the database config file that looks like this:
+Though LibSql is not connectable via SQL protocols, it can be used as a PDO driver via the package connector. This
+proxies the query and bindings to the LibSql's `/v2/endpoint` endpoint.
 
 ```php
-return [
-    'connections' => [
-        'libsql' => [
-            'driver' => 'libsql',
-            tbd
-``` 
+use NickPotts\LibSql\LibSql\Pdo\LibSqlPdo;
+use NickPotts\LibSql\LibSqlHttpConnector;
 
-## Testing
-
-```bash
-composer test
+$pdo = new LibSqlPdo(
+    dsn: 'sqlite::memory:', // irrelevant
+    connector: new LibSqlHttpConnector(
+        token: 'your_api_token', //optional for local dev, otherwise use your Turso/LibSql token
+        apiUrl: 'https://[database-name]-[organization-name].turso.io', // as shown by the Turso UI
+    ),
+);
 ```
 
-## Changelog
+### LibSql/Turso with Laravel
 
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
+In your `config/database.php` file, add a new connection:
 
+```php
+'connections' => [
+    'libsql' => [
+        'driver' => 'libsql',
+        'prefix' => '',
+        'api' => env('TURSO_DB_URL', 'http://127.0.0.1:8080')
+        'token' => env('TURSO_TOKEN', ''),
+    ],
+]
+```
 
-## Credits
+Then in your `.env` file, set up your Turso/LibSql credentials:
+
+```
+TURSO_TOKEN=
+TURSO_DB_URL=
+```
+
+The `libsql`driver will proxy the PDO queries to the LibSql/Turso API to run queries.
+
+## 🐛 Testing
+
+Run the Turso CLI in a separate terminal:
+
+```bash
+turso dev --port 8081
+```
+
+In a separate terminal, run the tests:
+
+``` bash
+vendor/bin/phpunit
+```
+
+## 🤝 Contributing
+
+Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
+
+## 🔒 Security
+
+If you discover any security related issues, please email <nick@cashdashpro.com> instead of using the issue tracker.
+
+## 🎉 Credits
 
 - [Nick Potts](https://github.com/nick-potts)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
