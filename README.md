@@ -61,8 +61,11 @@ In your `config/database.php` file, add a new connection:
 Then in your `.env` file, set up your Turso/LibSql credentials:
 
 They can be obtained via:
-`turso db show <database-name> --http-url`
-`turso db tokens create <database-name>`
+
+```
+turso db show <database-name> --http-url
+turso db tokens create <database-name>
+```
 
 ```
 TURSO_TOKEN=
