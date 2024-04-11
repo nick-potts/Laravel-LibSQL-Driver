@@ -10,7 +10,13 @@ use Throwable;
 
 class LibSqlTest extends TestCase
 {
-    public function test_d1_database_select()
+    public function test_bad_sql_query()
+    {
+        $this->expectException(QueryException::class);
+        DB::statement('ROFL');
+    }
+
+    public function test_database_select()
     {
         /** @var User $user */
         $user = factory(User::class)->create();
@@ -20,7 +26,41 @@ class LibSqlTest extends TestCase
         ]);
     }
 
-    public function test_d1_database_transaction()
+    public function test_drop_all_views()
+    {
+        DB::statement('CREATE VIEW test_view AS SELECT 1');
+        $this->assertDatabaseHas('sqlite_master', [
+            'name' => 'test_view',
+            'type' => 'view',
+        ]);
+
+        DB::getSchemaBuilder()->dropAllViews();
+
+        $this->assertDatabaseMissing('sqlite_master', [
+            'name' => 'test_view',
+            'type' => 'view',
+        ]);
+    }
+
+    public function test_drop_all_tables()
+    {
+        DB::beginTransaction();
+        DB::statement('CREATE TABLE test_table (id INTEGER PRIMARY KEY)');
+        $this->assertDatabaseHas('sqlite_master', [
+            'name' => 'test_table',
+            'type' => 'table',
+        ]);
+
+        DB::getSchemaBuilder()->dropAllTables();
+
+        $this->assertDatabaseMissing('sqlite_master', [
+            'name' => 'test_table',
+            'type' => 'table',
+        ]);
+        DB::rollBack();
+    }
+
+    public function test_database_transaction()
     {
         /** @var User $user */
         $user = factory(User::class)->create();
@@ -176,10 +216,20 @@ class LibSqlTest extends TestCase
         ]);
     }
 
+    public function test_multi_level_transaction_sub_rolls_back()
+    {
+        DB::beginTransaction();
+        $user = factory(User::class)->create();
+        DB::beginTransaction();
+        $user2 = factory(User::class)->create();
+        DB::rollBack();
+        DB::commit();
+
+        $this->assertDatabaseCount('users', 1);
+    }
+
     public function testTransactionIsRolledBack()
     {
-        DB::table('users')->truncate();
-
         $user = factory(User::class)->create();
 
         $this->assertDatabaseCount('users', 1);
@@ -197,36 +247,9 @@ class LibSqlTest extends TestCase
         $this->assertDatabaseCount('users', 1);
     }
 
-    public function test_multi_level_transaction_sub_rolls_back()
-    {
-        DB::table('users')->truncate();
-        DB::beginTransaction();
-        $user = factory(User::class)->create();
-        DB::beginTransaction();
-        $user2 = factory(User::class)->create();
-        DB::rollBack();
-        DB::commit();
-
-        $this->assertDatabaseCount('users', 1);
-    }
-
-
-    public function test_bad_connection()
-    {
-        $this->expectException(QueryException::class);
-        DB::connection('libsql_bad')->select('SELECT * FROM users');
-    }
-
-
-    public function test_bad_sql_query()
-    {
-        $this->expectException(QueryException::class);
-        DB::statement('ROFL');
-    }
 
     public function test_all_storage_types()
     {
-        Schema::dropIfExists('all_types');
         Schema::create('all_types', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('integer');
@@ -263,9 +286,23 @@ class LibSqlTest extends TestCase
         $this->assertIsString($result->text);
         $this->assertIsString($result->blob);
         $this->assertNull($result->null);
+    }
 
 
-        Schema::dropIfExists('all_types');
+    // test cursor fetch
+    public function test_cursor_fetch()
+    {
+        factory(User::class, 100)->create();
+        User::query()->orderBy('id')->chunk(10, function ($users) {
+            $this->assertCount(10, $users);
+        });
+    }
+
+
+    public function test_bad_connection()
+    {
+        $this->expectException(QueryException::class);
+        DB::connection('libsql_bad')->select('SELECT * FROM users');
     }
 
 

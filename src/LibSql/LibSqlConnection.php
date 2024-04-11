@@ -2,7 +2,6 @@
 
 namespace NickPotts\LibSql\LibSql;
 
-use Illuminate\Database\Grammar;
 use Illuminate\Database\Query\Grammars\MySqlGrammar;
 use Illuminate\Database\SQLiteConnection;
 use NickPotts\LibSql\LibSql\Pdo\LibSqlPdo;
@@ -18,16 +17,14 @@ class LibSqlConnection extends SQLiteConnection
         $queryGrammar = (new MySqlGrammar())->setConnection($this);
         parent::__construct(
             new LibSqlPdo('sqlite::memory:', $this->connector, $queryGrammar),
-            $config['database'] ?? '',
+            '',
             $config['prefix'] ?? '',
             $config,
         );
     }
 
-    protected function getDefaultSchemaGrammar(): Grammar
+    public function getSchemaBuilder()
     {
-        ($grammar = new LibSqlSchemaGrammar())->setConnection($this);
-
-        return $this->withTablePrefix($grammar);
+        return new LibSqlBuilder($this);
     }
 }

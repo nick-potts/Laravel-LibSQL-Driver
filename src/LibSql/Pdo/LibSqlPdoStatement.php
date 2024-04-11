@@ -50,8 +50,6 @@ class LibSqlPdoStatement extends PDOStatement
         $bindings = $this->bindings ?: $params;
         $query = $this->pdo->grammar()->substituteBindingsIntoRawSql($this->query, $bindings);
 
-//        echo $this->pdo->inTransaction() ? 'in transaction' : 'not in transaction' . PHP_EOL;
-//        echo $query . PHP_EOL;
         try {
             $response = $this->pdo->libsql()->databaseQuery(
                 $query,
@@ -75,11 +73,17 @@ class LibSqlPdoStatement extends PDOStatement
             );
         }
 
-        $this->response = $responseData->executeResult;
-
         $this->pdo->setBaseUrl($responseData->baseUrl);
         $this->pdo->setBaton($responseData->baton);
 
+        if ($responseData->error) {
+            throw new PDOException(
+                $responseData->error['message'],
+                0,
+            );
+        }
+
+        $this->response = $responseData->executeResult;
 
         $lastId = $this->response?->last_insert_rowid;
 

@@ -2,11 +2,13 @@
 
 namespace NickPotts\LibSql\Test;
 
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use NickPotts\LibSql\LibSqlServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 abstract class TestCase extends Orchestra
 {
+    use RefreshDatabase;
 
     public function connection(string $connection = 'libsql')
     {

@@ -2,13 +2,12 @@
 
 namespace NickPotts\LibSql\LibSql\Requests\Dto;
 
-use Exception;
-
 class ResponseDto
 {
     public string|null $baton;
     public string|null $baseUrl;
     public ExecuteResult|null $executeResult = null;
+    public array|null $error = null;
 
     public function __construct(array $response)
     {
@@ -21,11 +20,8 @@ class ResponseDto
                     $this->executeResult = new ExecuteResult($response['result']);
                 }
             } elseif ($result['type'] === 'error') {
-                throw new Exception($result['error']['message']);
+                $this->error = $result['error'];
             }
-        }
-        if (!$this->executeResult) {
-            throw new Exception('No execute result found');
         }
     }
 }

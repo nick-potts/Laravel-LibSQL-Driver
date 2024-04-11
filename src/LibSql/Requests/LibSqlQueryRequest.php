@@ -39,6 +39,7 @@ class LibSqlQueryRequest extends LibSqlRequest implements HasBody
     public function createDtoFromResponse(Response $response): mixed
     {
         $json = $response->json();
+
         return new ResponseDto($json);
     }
 
@@ -61,7 +62,6 @@ class LibSqlQueryRequest extends LibSqlRequest implements HasBody
                 'type' => 'close'
             ];
         }
-
         return $body;
     }
 }
