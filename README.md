@@ -52,7 +52,7 @@ In your `config/database.php` file, add a new connection:
     'libsql' => [
         'driver' => 'libsql',
         'prefix' => '',
-        'api' => env('TURSO_DB_URL', 'http://127.0.0.1:8080')
+        'api' => env('TURSO_DB_URL', 'http://127.0.0.1:8080'),
         'token' => env('TURSO_TOKEN', ''),
     ],
 ]
@@ -60,10 +60,17 @@ In your `config/database.php` file, add a new connection:
 
 Then in your `.env` file, set up your Turso/LibSql credentials:
 
+They can be obtained via:
+`turso db show <database-name> --http-url`
+`turso db tokens create <database-name>`
+
 ```
 TURSO_TOKEN=
 TURSO_DB_URL=
 ```
+
+If you want to develop locally, start a dev server with `turso dev` and set the `TURSO_DB_URL`
+to `http://127.0.0.1:8080`
 
 The `libsql`driver will proxy the PDO queries to the LibSql/Turso API to run queries.
 
