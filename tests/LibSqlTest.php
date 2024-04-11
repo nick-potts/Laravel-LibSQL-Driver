@@ -248,6 +248,23 @@ class LibSqlTest extends TestCase
     }
 
 
+    // test cursor fetch
+    public function test_cursor_fetch()
+    {
+        factory(User::class, 100)->create();
+        User::query()->orderBy('id')->chunk(10, function ($users) {
+            $this->assertCount(10, $users);
+        });
+    }
+
+
+    public function test_bad_connection()
+    {
+        $this->expectException(QueryException::class);
+        DB::connection('libsql_bad')->select('SELECT * FROM users');
+    }
+
+
     public function test_all_storage_types()
     {
         Schema::create('all_types', function (Blueprint $table) {
@@ -286,23 +303,6 @@ class LibSqlTest extends TestCase
         $this->assertIsString($result->text);
         $this->assertIsString($result->blob);
         $this->assertNull($result->null);
-    }
-
-
-    // test cursor fetch
-    public function test_cursor_fetch()
-    {
-        factory(User::class, 100)->create();
-        User::query()->orderBy('id')->chunk(10, function ($users) {
-            $this->assertCount(10, $users);
-        });
-    }
-
-
-    public function test_bad_connection()
-    {
-        $this->expectException(QueryException::class);
-        DB::connection('libsql_bad')->select('SELECT * FROM users');
     }
 
 
