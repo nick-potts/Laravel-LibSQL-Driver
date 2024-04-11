@@ -224,49 +224,49 @@ class LibSqlTest extends TestCase
         DB::statement('ROFL');
     }
 
-//    public function test_all_storage_types()
-//    {
-//        Schema::dropIfExists('all_types');
-//        Schema::create('all_types', function (Blueprint $table) {
-//            $table->id();
-//            $table->bigInteger('integer');
-//            $table->float('float');
-//            $table->string('text');
-//            $table->binary('blob');
-//            $table->string('null')->nullable();
-//            $table->timestamps();
-//        });
-//
-//        $integer = PHP_INT_MAX;
-//        $float = 3.1234567890123;
-//        $text = 'Hello, World!
-//        I am multi line text';
-//        $blob = random_bytes(1024);
-//
-//        DB::table('all_types')->insert([
-//            'integer' => $integer,
-//            'float' => $float,
-//            'text' => $text,
-//            'blob' => $blob,
-//            'null' => null,
-//        ]);
-//
-//        $result = DB::table('all_types')->first();
-//        $this->assertEquals($integer, $result->integer);
-//        $this->assertEquals($float, $result->float);
-//        $this->assertEquals($text, $result->text);
-//        $this->assertEquals($blob, $result->blob);
-//        $this->assertEquals(null, $result->null);
-//
-//        $this->assertIsInt($result->integer);
-//        $this->assertIsFloat($result->float);
-//        $this->assertIsString($result->text);
-//        $this->assertIsString($result->blob);
-//        $this->assertNull($result->null);
-//
-//
-//        Schema::dropIfExists('all_types');
-//    }
+    public function test_all_storage_types()
+    {
+        Schema::dropIfExists('all_types');
+        Schema::create('all_types', function (Blueprint $table) {
+            $table->id();
+            $table->bigInteger('integer');
+            $table->float('float');
+            $table->string('text');
+            $table->binary('blob');
+            $table->string('null')->nullable();
+            $table->timestamps();
+        });
+
+        $integer = PHP_INT_MAX;
+        $float = 3.1234567890123;
+        $text = 'Hello, World!
+        I am multi line text';
+        $blob = random_bytes(1024);
+
+        DB::table('all_types')->insert([
+            'integer' => $integer,
+            'float' => $float,
+            'text' => $text,
+            'blob' => $blob,
+            'null' => null,
+        ]);
+
+        $result = DB::table('all_types')->first();
+        $this->assertEquals($integer, $result->integer);
+        $this->assertEquals($float, $result->float);
+        $this->assertEquals($text, $result->text);
+        $this->assertEquals($blob, $result->blob);
+        $this->assertEquals(null, $result->null);
+
+        $this->assertIsInt($result->integer);
+        $this->assertIsFloat($result->float);
+        $this->assertIsString($result->text);
+        $this->assertIsString($result->blob);
+        $this->assertNull($result->null);
+
+
+        Schema::dropIfExists('all_types');
+    }
 
 
 }
