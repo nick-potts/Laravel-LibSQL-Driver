@@ -31,6 +31,9 @@ class LibSqlBuilder extends SQLiteBuilder
             }
             $this->connection->statement("DROP TABLE IF EXISTS {$table->name}");
         }
-        $this->connection->statement("DELETE FROM sqlite_sequence");
+        
+        if ($this->connection->select("SELECT name FROM sqlite_master WHERE type='table' AND name='sqlite_sequence'")) {
+            $this->connection->statement("DELETE FROM sqlite_sequence");
+        }
     }
 }
