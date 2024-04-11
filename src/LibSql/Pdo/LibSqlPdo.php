@@ -68,6 +68,12 @@ class LibSqlPdo extends PDO
         );
     }
 
+    public function exec(string $statement): int|false
+    {
+        $statement = $this->prepare($statement);
+        return $statement->execute();
+    }
+
     public function commit(): bool
     {
         $this->inTransaction = false;
