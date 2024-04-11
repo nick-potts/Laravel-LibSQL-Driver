@@ -57,7 +57,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "LibSqlServiceProvider"
+                "NickPotts\\LibSql\\LibSqlServiceProvider"
             ]
         }
     }
